@@ -11,10 +11,12 @@ using DecisionsFramework.Design.Flow.Mapping;
 using Decisions.Docusign.DSServiceReference;
 using Decisions.Docusign.DataTypes;
 using DecisionsFramework.Design.Flow.Mapping.InputImpl;
+using DecisionsFramework.ServiceLayer;
 
 namespace Decisions.Docusign
 {
-    [AutoRegisterStep("Send Document For Signing", "Integration", "Docusign")]
+    [Obsolete]
+    //[AutoRegisterStep("Send Document For Signing", "Integration", "Docusign")]
     [Writable]
     public sealed class SendDocumentForSigning : ISyncStep, IDataConsumer, IDataProducer, IDefaultInputMappingStep
     {
@@ -131,7 +133,7 @@ namespace Decisions.Docusign
                             Type = RecipientTypeCode.Signer,
                             RoutingOrder = (ushort)rtm.RoutingOrder,
                             RoutingOrderSpecified = rtm.RoutingOrder > 0,
-                            ID = recipientIndex.ToString()
+                            ID = recipientIndex.ToString(),
                         });
 
                         //add a Tab to the list for each of the RTM's simplified tab objects, setting the RecipientID and DocumentID to match current recipient and document
@@ -180,7 +182,7 @@ namespace Decisions.Docusign
                         Tabs = tabs.ToArray()
                     }).EnvelopeID;
 
-                   
+
                     resultData.Add(OUTPUT_ENVELOPEID, envelopeID);
                     return new ResultData(OUTCOME_SENT, resultData);
                 }

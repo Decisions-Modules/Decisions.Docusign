@@ -12,17 +12,20 @@ namespace Decisions.Docusign.DataTypes
 {
     [DataContract]
     [ValidationRules]
-    public class RecipientTabMapping: IValidationSource
+    public class RecipientTabMapping : IValidationSource
     {
         [DataMember]
         [EmptyStringRule]
         public string EmailAddress { get; set; }
 
         [DataMember]
+        public string RecipientName  { get; set; }
+
+        [DataMember]
         public int RoutingOrder { get; set; }
 
         [DataMember]
-        public SimpleTab[] AbsolutePositionTabs { get; set; }       
+        public SimpleTab[] AbsolutePositionTabs { get; set; }
 
         [DataMember]
         public SimpleAnchorTab[] AnchorStringTabs { get; set; }

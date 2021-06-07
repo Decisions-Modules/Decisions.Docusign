@@ -12,6 +12,7 @@
 		<Configuration>Debug</Configuration>
 		<BuildDest>..\..\..\output\binservices</BuildDest>
 		<LibPath>..\..\..\lib</LibPath>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 	</PropertyGroup>
 	
 	<Target Name="build_all">

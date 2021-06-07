@@ -6,13 +6,12 @@ using DecisionsFramework.Data.DataTypes;
 using DecisionsFramework.Design.Flow;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
+using Decisions.Docusign.DSServiceReference;
 using DecisionsFramework.Design.Flow.StepImplementations;
-using System.Xml.Serialization;
-using System.IO;
+using System.Collections.Generic;
 
 namespace Decisions.Docusign
 {
-
 
     [AutoRegisterMethodsOnClass(true, "Integration", "Docusign")]
     public static class DocusignSteps
@@ -31,25 +30,10 @@ namespace Decisions.Docusign
                 return dsClient.RequestStatus(envelopeId).Status.ToString();
             }
 
-        }
+        }          
 
-        public static Docusign.DataTypes.DocuSignEnvelopeInformation DeserialiseDocusignEnvelopeInformation(string XML)
-        {
-            try
-            {
-
-
-                var result = (Decisions.Docusign.DataTypes.DocuSignEnvelopeInformation)new XmlSerializer(typeof(Decisions.Docusign.DataTypes.DocuSignEnvelopeInformation), "http://www.docusign.net/API/3.0").Deserialize(new StringReader(XML));
-                return result;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-        }
-
+		[Obsolete]
+        [ExcludeMethodOnAutoRegister]
         public static FileData GetSignedDocument(string envelopeId, [IgnoreMappingDefault] DocusignCredentials overrideCredentials = null)
         {
             IDocusignCreds creds = overrideCredentials as IDocusignCreds ?? DSServiceClientFactory.DsSettings;
@@ -69,6 +53,65 @@ namespace Decisions.Docusign
 
                 return new FileData(string.Format("{0}.pdf", documentsPDFs.DocumentPDF[0].Name), documentsPDFs.DocumentPDF[0].PDFBytes);
               
+            }
+        }
+		
+		/// <summary>
+        /// Returns all the documents within an envelope. With the exception of the summary.pdf file
+        /// </summary>
+        /// <param name="envelopeId"></param>
+        /// <param name="overrideCredentials"></param>
+        /// <returns></returns>
+        public static FileData[] GetSignedDocuments(string envelopeId, [IgnoreMappingDefault] DocusignCredentials overrideCredentials=null)
+        {
+            IDocusignCreds creds = overrideCredentials as IDocusignCreds ?? DSServiceClientFactory.DsSettings;
+            DSAPIServiceSoapClient dsClient = DSServiceClientFactory.GetDsClient(creds);
+			// Null check. No good documentation regarding DSAPIServiceSoapClient
+            if (dsClient == null)
+                return null;
+			
+            using (var scope = new System.ServiceModel.OperationContextScope(dsClient.InnerChannel))
+            {
+                OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
+                    DSServiceClientFactory.GetAuthHeaderRequestProperty(creds);
+
+                DocumentPDFs documentPDFS = dsClient.RequestDocumentPDFsEx(envelopeId);
+
+                if (documentPDFS == null || documentPDFS.DocumentPDF == null || documentPDFS.DocumentPDF.Length == 0 )
+                {
+                    return null;
+                }
+                
+                List<FileData> ret = new List<FileData>(); 
+                for(int i=0; i<documentPDFS.DocumentPDF.Length; i++)
+                {
+					// Only add to return array if document is not a summary. 
+                    if (!(documentPDFS.DocumentPDF[i].DocumentType == DocumentType.SUMMARY))
+                        ret.Add(new FileData(documentPDFS.DocumentPDF[i].Name, documentPDFS.DocumentPDF[i].PDFBytes));
+                }
+
+                return ret.ToArray();
+            }
+        }
+        
+        public static FileData GetCertificate(string envelopeId, [IgnoreMappingDefault] DocusignCredentials overrideCredentials = null)
+        {
+            IDocusignCreds creds = overrideCredentials as IDocusignCreds ?? DSServiceClientFactory.DsSettings;
+
+            DSAPIServiceSoapClient dsClient = DSServiceClientFactory.GetDsClient(creds);
+
+            using (OperationContextScope scope = new OperationContextScope(dsClient.InnerChannel))
+            {
+                OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] = DSServiceClientFactory.GetAuthHeaderRequestProperty(creds);
+
+                var documentsPDFs = dsClient.RequestCertificate(envelopeId);
+
+                if (documentsPDFs == null || documentsPDFs.DocumentPDF == null || documentsPDFs.DocumentPDF.Length == 0)
+                {
+                    return null;
+                }
+
+                return new FileData($"{documentsPDFs.DocumentPDF[0].Name}.pdf", documentsPDFs.DocumentPDF[0].PDFBytes);
             }
 
         }
