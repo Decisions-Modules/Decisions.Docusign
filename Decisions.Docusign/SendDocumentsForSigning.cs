@@ -37,6 +37,7 @@ namespace Decisions.Docusign
         private const string INPUT_CREDS = "OverrideCredentials";
 
         private const string INPUT_RESPECT_SIGNING_ORDER = "RespectSigningOrder";
+        private const string INPUT_REMINDERS = "Reminders";
 
         #region Outcomes
 
@@ -65,7 +66,8 @@ namespace Decisions.Docusign
                     new DataDescription(typeof (string), INPUT_SUBJECT),
                     new DataDescription(typeof (string), INPUT_EMAILBLURB),
                     new DataDescription(typeof (DocusignCredentials), INPUT_CREDS),
-                    new DataDescription(typeof(bool), INPUT_RESPECT_SIGNING_ORDER), 
+                    new DataDescription(typeof(bool), INPUT_RESPECT_SIGNING_ORDER),
+                    new DataDescription(typeof(Notification), INPUT_REMINDERS),
                 };
             }
         }
@@ -81,6 +83,7 @@ namespace Decisions.Docusign
                     new SelectValueInputMapping { InputDataName = INPUT_SUBJECT },
                     new SelectValueInputMapping { InputDataName = INPUT_EMAILBLURB },
                     new NullInputMapping { InputDataName = INPUT_CREDS },
+                    new NullInputMapping { InputDataName = INPUT_REMINDERS },
                 };
             }
         }
@@ -102,6 +105,7 @@ namespace Decisions.Docusign
             var recipients = (RecipientTabMapping[])data.Data[INPUT_RECIPIENTS];
             var subject = (string)data.Data[INPUT_SUBJECT];
             var emailBlurb = (string)data.Data[INPUT_EMAILBLURB];
+            var reminders = data.Data[INPUT_REMINDERS] == null ? null : (Notification) data.Data[INPUT_REMINDERS];
 
             Dictionary<string, object> resultData = new Dictionary<string, object>();
 
@@ -190,7 +194,8 @@ namespace Decisions.Docusign
                         Recipients = dsRecipients.ToArray<Recipient>(),
                         AccountId = creds.AccountId,
                         Documents = documents.ToArray(),
-                        Tabs = tabs.ToArray()
+                        Tabs = tabs.ToArray(),
+                        Notification = reminders
                     }).EnvelopeID;
 
 
