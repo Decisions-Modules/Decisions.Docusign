@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DecisionsFramework.Data.DataTypes;
 using DecisionsFramework.Design.Flow;
 using System.ServiceModel;
@@ -10,8 +6,6 @@ using System.ServiceModel.Channels;
 using DecisionsFramework.Design.Flow.StepImplementations;
 using System.Xml.Serialization;
 using System.IO;
-using DecisionsFramework.Design.Properties;
-using Microsoft.VisualBasic;
 
 namespace Decisions.Docusign
 {
