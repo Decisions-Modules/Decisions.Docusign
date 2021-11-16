@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ using System.ServiceModel.Channels;
 using DecisionsFramework.Design.Flow.StepImplementations;
 using System.Xml.Serialization;
 using System.IO;
+using DecisionsFramework.Design.Properties;
+using Microsoft.VisualBasic;
 
 namespace Decisions.Docusign
 {
@@ -32,7 +35,9 @@ namespace Decisions.Docusign
             }
 
         }
-
+        
+        //Renaming step with AutoRegister since the method name is misspelled DT-032541
+        [AutoRegisterMethod("Deserialize Docusign Envelope Information")]  
         public static Docusign.DataTypes.DocuSignEnvelopeInformation DeserialiseDocusignEnvelopeInformation(string XML)
         {
             try
