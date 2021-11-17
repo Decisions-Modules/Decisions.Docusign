@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DecisionsFramework.Data.DataTypes;
 using DecisionsFramework.Design.Flow;
 using System.ServiceModel;
@@ -32,7 +29,9 @@ namespace Decisions.Docusign
             }
 
         }
-
+        
+        //Renaming step with AutoRegister since the method name is misspelled DT-032541
+        [AutoRegisterMethod("Deserialize Docusign Envelope Information")]  
         public static Docusign.DataTypes.DocuSignEnvelopeInformation DeserialiseDocusignEnvelopeInformation(string XML)
         {
             try

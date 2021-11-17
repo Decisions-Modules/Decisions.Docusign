@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DecisionsFramework.Data.ORMapper;
+﻿using DecisionsFramework.Data.ORMapper;
 using DecisionsFramework.Design.Properties;
 using DecisionsFramework.Design.Properties.Attributes;
 using DecisionsFramework.ServiceLayer;
