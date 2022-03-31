@@ -12,7 +12,7 @@ using DecisionsFramework.Design.Flow.Mapping.InputImpl;
 
 namespace Decisions.Docusign
 {
-    [AutoRegisterStep("Send Document For Signing", "Integration", "Docusign")]
+    [Obsolete]
     [Writable]
     public sealed class SendDocumentForSigning : ISyncStep, IDataConsumer, IDataProducer, IDefaultInputMappingStep
     {
