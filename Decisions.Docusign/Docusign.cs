@@ -39,6 +39,22 @@ namespace Decisions.Docusign
             return result;
         }
 
+        public static bool VoidDocument(string envelopeId, string reason, [IgnoreMappingDefault] DocusignCredentials overrideCredentials = null)
+        {
+            IDocusignCreds creds = overrideCredentials as IDocusignCreds ?? DSServiceClientFactory.DsSettings;
+
+            DSAPIServiceSoapClient dsClient = DSServiceClientFactory.GetDsClient(creds);
+            
+            using (OperationContextScope scope = new OperationContextScope(dsClient.InnerChannel))
+            {
+                OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] = DSServiceClientFactory.GetAuthHeaderRequestProperty(creds);
+
+                VoidEnvelopeStatus status = dsClient.VoidEnvelope(envelopeId, reason);
+
+                return status.VoidSuccess;
+            }
+        }
+
         [Obsolete]
         [ExcludeMethodOnAutoRegister]
         public static FileData GetSignedDocument(string envelopeId, [IgnoreMappingDefault] DocusignCredentials overrideCredentials = null)
