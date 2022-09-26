@@ -29,6 +29,7 @@ namespace Decisions.Docusign
 
         private const string INPUT_DOCUMENT = "Document";
         private const string INPUT_RECIPIENTS = "Recipients";
+        private const string INPUT_CC = "CC";
         private const string INPUT_SUBJECT = "Subject";
         private const string INPUT_EMAILBLURB = "EmailBlurb";
         private const string INPUT_CREDS = "OverrideCredentials";
@@ -60,6 +61,7 @@ namespace Decisions.Docusign
                 {
                     new DataDescription(typeof (FileData), INPUT_DOCUMENT, true),
                     new DataDescription(typeof (RecipientTabMapping), INPUT_RECIPIENTS, true),
+                    new DataDescription(typeof(string), INPUT_CC, true),
                     new DataDescription(typeof (string), INPUT_SUBJECT),
                     new DataDescription(typeof (string), INPUT_EMAILBLURB),
                     new DataDescription(typeof (DocusignCredentials), INPUT_CREDS),
@@ -77,6 +79,7 @@ namespace Decisions.Docusign
                 {
                     new SelectValueInputMapping { InputDataName = INPUT_DOCUMENT },
                     new SelectValueInputMapping { InputDataName = INPUT_RECIPIENTS },
+                    new IgnoreInputMapping { InputDataName = INPUT_CC },
                     new SelectValueInputMapping { InputDataName = INPUT_SUBJECT },
                     new SelectValueInputMapping { InputDataName = INPUT_EMAILBLURB },
                     new NullInputMapping { InputDataName = INPUT_CREDS },
@@ -100,6 +103,7 @@ namespace Decisions.Docusign
 
             var document = (FileData[])data.Data[INPUT_DOCUMENT];
             var recipients = (RecipientTabMapping[])data.Data[INPUT_RECIPIENTS];
+            var cc = (string[]) data.Data[INPUT_CC];
             var subject = (string)data.Data[INPUT_SUBJECT];
             var emailBlurb = (string)data.Data[INPUT_EMAILBLURB];
             var reminders = data.Data[INPUT_REMINDERS] == null ? null : (Notification) data.Data[INPUT_REMINDERS];
@@ -182,7 +186,24 @@ namespace Decisions.Docusign
                         };
                         recipientIndex++;
                     };
-
+                    
+                    // Add CC recipients
+                    if (cc != null)
+                    {
+                        
+                        foreach (var ccEmail in cc)
+                        {
+                            dsRecipients.Add(new Recipient
+                            {
+                                Email = ccEmail,
+                                UserName = ccEmail,
+                                Type = RecipientTypeCode.CarbonCopy,
+                                ID = recipientIndex.ToString(),
+                            });
+                            recipientIndex++;
+                        }
+                    }
+                    
                     //construct the envelope and send; return EnvelopeID
                     var envelopeID = dsClient.CreateAndSendEnvelope(new Envelope
                     {
