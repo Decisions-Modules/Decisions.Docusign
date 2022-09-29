@@ -9,8 +9,11 @@ namespace Decisions.Docusign
     {
 
         private const string DEMO_ENDPOINT = "https://demo.docusign.net/api/3.0/dsapi.asmx";
-        private const string PROD_ENDPOINT = "https://www.docusign.net/api/3.0/dsapi.asmx";
+        private const string PROD_ENDPOINT = "api/3.0/dsapi.asmx";
 
+        
+        private const string LEGACY_PROD_BASE_URL = "https://www.docusign.net";
+        
         public static DocusignSettings DsSettings
         {
             get
@@ -41,8 +44,20 @@ namespace Decisions.Docusign
 
         private static string GetEndpoint(IDocusignCreds creds)
         {
-            if (creds.UseDemoEnvironment) return DEMO_ENDPOINT;
-            else return PROD_ENDPOINT;
+            if (creds.UseDemoEnvironment)
+            {
+                return DEMO_ENDPOINT;
+            }
+            else
+            {
+                string baseUrl = DsSettings.BaseUrl;
+                if (string.IsNullOrEmpty(baseUrl))
+                {
+                    baseUrl = LEGACY_PROD_BASE_URL;
+                }
+                
+                return $"{baseUrl.TrimEnd('/')}/{PROD_ENDPOINT}";
+            }
         }
     }
 }
