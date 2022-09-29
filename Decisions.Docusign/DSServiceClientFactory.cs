@@ -12,7 +12,7 @@ namespace Decisions.Docusign
         private const string PROD_ENDPOINT = "api/3.0/dsapi.asmx";
 
         
-        private const string LEGACY_PROD_BASE_URL = "https://www.docusign.net";
+        private const string LEGACY_PROD_BASE_URL = "https://www.docusign.net/";
         
         public static DocusignSettings DsSettings
         {
