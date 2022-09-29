@@ -11,6 +11,9 @@ namespace Decisions.Docusign
     
     public class DocusignSettings : AbstractModuleSettings, IInitializable, IDocusignCreds
     {
+        [ORMField] 
+        private string baseUrl;
+        
         [ORMField]
         private string userName;
 
@@ -34,6 +37,14 @@ namespace Decisions.Docusign
             this.EntityName = "Docusign Settings";
         }
 
+        [PropertyClassification(0, "Base Url (Production)", "Docusign Credentials")]        
+        [PropertyHiddenByValue(nameof(UseDemoEnvironment), true, true)]
+        public string BaseUrl
+        {
+            get { return baseUrl; }
+            set { baseUrl = value; }
+        }
+        
         [PropertyClassification(new [] {"Docusign Credentials"}, 1)]
         public string UserName
         {
