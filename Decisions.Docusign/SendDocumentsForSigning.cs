@@ -123,7 +123,7 @@ namespace Decisions.Docusign
 
                     List<Document> documents = new List<Document>();
                     // Doc ID is the index of the supplied documents
-                    int docId = 0;
+                    int docId = 1;
                     foreach (FileData doc in document)
                     {
                         documents.Add(new Document
