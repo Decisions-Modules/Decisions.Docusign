@@ -235,7 +235,7 @@ namespace Decisions.Docusign
         /// <returns></returns>
         private string GetIdentifierOrDefaultOneAsString(int id)
         {
-            return (id > 0) ? id.ToString() : "1";
+            return (id > 0 ? id : 1).ToString();
         }
     }
 }
