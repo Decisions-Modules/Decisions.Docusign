@@ -13,6 +13,8 @@ namespace Decisions.Docusign.DataTypes
         public string EmailAddress { get; set; }
 
         [DataMember]
+        public string RecipientName { get; set; }
+        [DataMember]
         public int RoutingOrder { get; set; }
 
         [DataMember]

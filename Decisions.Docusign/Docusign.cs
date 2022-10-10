@@ -69,7 +69,7 @@ namespace Decisions.Docusign
 
                 var documentsPDFs = dsClient.RequestDocumentPDFs(envelopeId);
 
-                if (documentsPDFs == null || documentsPDFs.DocumentPDF == null || documentsPDFs.DocumentPDF.Length == 0)
+                if (documentsPDFs?.DocumentPDF == null || documentsPDFs.DocumentPDF.Length == 0)
                 {
                     return null;
                 }
@@ -100,17 +100,17 @@ namespace Decisions.Docusign
 
                 DocumentPDFs documentPDFS = dsClient.RequestDocumentPDFsEx(envelopeId);
 
-                if (documentPDFS == null || documentPDFS.DocumentPDF == null || documentPDFS.DocumentPDF.Length == 0 )
+                if (documentPDFS?.DocumentPDF == null || documentPDFS.DocumentPDF.Length == 0 )
                 {
                     return null;
                 }
                 
                 List<FileData> ret = new List<FileData>(); 
-                for(int i=0; i<documentPDFS.DocumentPDF.Length; i++)
+                foreach (var document in documentPDFS.DocumentPDF)
                 {
-					// Only add to return array if document is not a summary. 
-                    if (!(documentPDFS.DocumentPDF[i].DocumentType == DocumentType.SUMMARY))
-                        ret.Add(new FileData(documentPDFS.DocumentPDF[i].Name, documentPDFS.DocumentPDF[i].PDFBytes));
+                    // Only add to return array if document is not a summary. 
+                    if (document.DocumentType != DocumentType.SUMMARY)
+                        ret.Add(new FileData(document.Name, document.PDFBytes));
                 }
 
                 return ret.ToArray();
@@ -129,7 +129,7 @@ namespace Decisions.Docusign
 
                 var documentsPDFs = dsClient.RequestCertificate(envelopeId);
 
-                if (documentsPDFs == null || documentsPDFs.DocumentPDF == null || documentsPDFs.DocumentPDF.Length == 0)
+                if (documentsPDFs?.DocumentPDF == null || documentsPDFs.DocumentPDF.Length == 0)
                 {
                     return null;
                 }

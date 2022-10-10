@@ -21,6 +21,8 @@ namespace Decisions.Docusign
     [Writable]
     public sealed class SendDocumentsForSigning : ISyncStep, IDataConsumer, IDataProducer, IDefaultInputMappingStep
     {
+        #region Constants 
+        
         private const string OUTCOME_SENT = "Sent";
         private const string OUTCOME_ERROR = "Error";
 
@@ -37,7 +39,9 @@ namespace Decisions.Docusign
         private const string INPUT_RESPECT_SIGNING_ORDER = "RespectSigningOrder";
         private const string INPUT_REMINDERS = "Reminders";
 
-        #region Outcomes
+        #endregion
+        
+        #region ISyncStep Members
 
         public OutcomeScenarioData[] OutcomeScenarios
         {
@@ -49,10 +53,7 @@ namespace Decisions.Docusign
                 };
             }
         }
-
-        #endregion
-
-        #region Input Data
+        
         public DataDescription[] InputData
         {
             get
@@ -87,100 +88,101 @@ namespace Decisions.Docusign
                 };
             }
         }
+        
         #endregion
-
-        #region Run
 
         public ResultData Run(StepStartData data)
         {
-            IDocusignCreds creds;
+            IDocusignCreds credentials;
             if (data.Data.ContainsKey(INPUT_CREDS) && data.Data[INPUT_CREDS] != null)
-                creds = data.Data[INPUT_CREDS] as IDocusignCreds;
+                credentials = data.Data[INPUT_CREDS] as IDocusignCreds;
             else
-                creds = DSServiceClientFactory.DsSettings;
+                credentials = DSServiceClientFactory.DsSettings;
 
-            var dsClient = DSServiceClientFactory.GetDsClient(creds);
+            var dsClient = DSServiceClientFactory.GetDsClient(credentials);
 
+            // Get Input Values
             var document = (FileData[])data.Data[INPUT_DOCUMENT];
             var recipients = (RecipientTabMapping[])data.Data[INPUT_RECIPIENTS];
-            var cc = (string[]) data.Data[INPUT_CC];
+            var cc = (string[])data.Data[INPUT_CC];
             var subject = (string)data.Data[INPUT_SUBJECT];
             var emailBlurb = (string)data.Data[INPUT_EMAILBLURB];
-            var reminders = data.Data[INPUT_REMINDERS] == null ? null : (Notification) data.Data[INPUT_REMINDERS];
-
+            var reminders = (Notification)data.Data[INPUT_REMINDERS];
+            
+            // Output
             Dictionary<string, object> resultData = new Dictionary<string, object>();
 
             try
             {
                 using (var scope = new System.ServiceModel.OperationContextScope(dsClient.InnerChannel))
                 {
-
-                    OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] = DSServiceClientFactory.GetAuthHeaderRequestProperty(creds);
+                    OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] = 
+                        DSServiceClientFactory.GetAuthHeaderRequestProperty(credentials);
 
                     var dsRecipients = new List<Recipient>();
                     var tabs = new List<Tab>();
                     var recipientsList = recipients.ToList();
 
                     List<Document> documents = new List<Document>();
-                    // Doc ID is the index of the supplied documents
-                    int docId = 1;
+                    var documentIndex = 1;
                     foreach (FileData doc in document)
                     {
                         documents.Add(new Document
                         {
                             PDFBytes = doc.Contents,
-                            ID = docId.ToString(),
+                            ID = documentIndex.ToString(),
                             Name = doc.FileName
                         });
-                        docId++;
+                        documentIndex++;
                     }
 
-                    //each recipient has a list of tabs; this is represented by the RecipientTabMapping type
-                    var recipientIndex = 1; //RecipientID must be a non-negative integer; using the index of each Recipient in the list for simplicity
+                    // Add each Recipient with their Tabs.
+                    var recipientIndex = 1;
                     foreach (var rtm in recipientsList)
                     {
                         int routingOrder = rtm.RoutingOrder + 1;// Increment by 1 so order is able to use 0
                         dsRecipients.Add(new Recipient
                         {
                             Email = rtm.EmailAddress,
-                            UserName = rtm.EmailAddress,
+                            UserName = rtm.RecipientName,
                             Type = RecipientTypeCode.Signer,
                             RoutingOrder = (ushort)routingOrder, 
                             /* RoutingOrder must be positive. And RoutingOrderSpecified cannot be null*/
-                            RoutingOrderSpecified = (ushort)routingOrder <= 0 ? false : (bool?) data["RespectSigningOrder"] ?? false,
+                            RoutingOrderSpecified = routingOrder > 0 && (data["RespectSigningOrder"] as bool? ?? false),
                             ID = recipientIndex.ToString()
                         });
 
-                        //add a Tab to the list for each of the RTM's simplified tab objects, setting the RecipientID and DocumentID to match current recipient and document
-                        //first do absolutely positioned tabs (normal Tab)
+                        // Absolutely Positioned Tabs
                         if (rtm.AbsolutePositionTabs != null)
                         {
                             foreach (var apt in rtm.AbsolutePositionTabs)
                             {
                                 tabs.Add(new Tab
                                 {
-                                    PageNumber = apt.PageNumber.ToString(),
+                                    PageNumber = GetIdentifierOrDefaultOneAsString(apt.PageNumber),
                                     XPosition = apt.XPosition.ToString(),
                                     YPosition = apt.YPosition.ToString(),
                                     Type = apt.TabType,
                                     RecipientID = recipientIndex.ToString(),
-                                    Name = recipientIndex.ToString(),
-                                    DocumentID = "1"
+                                    Name = rtm.RecipientName,
+                                    DocumentID = GetIdentifierOrDefaultOneAsString(apt.DocumentId),
                                 });
                             }
                         };
-                        //then do AnchorTabs
+                        // AnchorStringTabs
+                        // Docusign will search the document for these string values and attach a Tab at that location.
                         if (rtm.AnchorStringTabs != null)
                         {
                             foreach (var ast in rtm.AnchorStringTabs)
                             {
                                 tabs.Add(new Tab
                                 {
-                                    PageNumber = ast.PageNumber.ToString(),
+                                    PageNumber = GetIdentifierOrDefaultOneAsString(ast.PageNumber),
                                     AnchorTabItem = new AnchorTab { AnchorTabString = ast.AnchorTabString, XOffset = ast.XOffset, YOffset = ast.YOffset },
                                     Type = ast.TabType,
                                     Name = recipientIndex.ToString(),
-                                    DocumentID = "1"
+                                    RecipientID = recipientIndex.ToString(),
+                                    DocumentID = GetIdentifierOrDefaultOneAsString(ast.DocumentId),
                                 });
                             }
                         };
@@ -190,7 +192,6 @@ namespace Decisions.Docusign
                     // Add CC recipients
                     if (cc != null)
                     {
-                        
                         foreach (var ccEmail in cc)
                         {
                             dsRecipients.Add(new Recipient
@@ -210,12 +211,11 @@ namespace Decisions.Docusign
                         Subject = subject,
                         EmailBlurb = emailBlurb,
                         Recipients = dsRecipients.ToArray<Recipient>(),
-                        AccountId = creds.AccountId,
+                        AccountId = credentials.AccountId,
                         Documents = documents.ToArray(),
                         Tabs = tabs.ToArray(),
                         Notification = reminders
                     }).EnvelopeID;
-
 
                     resultData.Add(OUTPUT_ENVELOPEID, envelopeID);
                     return new ResultData(OUTCOME_SENT, resultData);
@@ -228,6 +228,14 @@ namespace Decisions.Docusign
             }
         }
 
-        #endregion
+        /// <summary>
+        /// This method returns the specified Identifier as a string with a minimum value of 1.
+        /// This handles 1-based indexes where we need to sanitize user input or account for older hardcoded values.
+        /// </summary>
+        /// <returns></returns>
+        private string GetIdentifierOrDefaultOneAsString(int id)
+        {
+            return (id > 0) ? id.ToString() : "1";
+        }
     }
 }
