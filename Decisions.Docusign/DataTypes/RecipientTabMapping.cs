@@ -14,6 +14,7 @@ namespace Decisions.Docusign.DataTypes
 
         [DataMember]
         public string RecipientName { get; set; }
+        
         [DataMember]
         public int RoutingOrder { get; set; }
 
