@@ -97,28 +97,18 @@ namespace Decisions.Docusign
 
         public void Initialize()
         {
-            // this will create it
+            // Create default settings object
             ModuleSettingsAccessor<DocusignSettings>.GetSettings();
         }
 
         public void SetDocusignSettings(DocusignSettings settings)
         {
-
             settings.Store();
-
-
         }
-
-
+        
         public DocusignSettings GetDocusignSettings()
         {
-
             return DSServiceClientFactory.DsSettings;
-
         }
-
-
-
-        //   public DocusignAPI.
     }
 }

@@ -18,10 +18,12 @@ namespace Decisions.Docusign.DataTypes
         [DataMember]
         public TabTypeCode TabType { get; set; }
 
+        [DataMember]
+        public int DocumentId { get; set; }
+        
         public override string ToString()
         {
-            return string.Format("{0} on page {1} at {2},{3}", TabType.ToString(), PageNumber, XPosition, YPosition);
+            return $"{TabType.ToString()} on page {PageNumber}, document {DocumentId} at {XPosition},{YPosition}.";
         }
-
     }
 }
