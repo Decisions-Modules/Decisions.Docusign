@@ -54,7 +54,6 @@ namespace Decisions.Docusign
             set { loginEmail = value; }
         }
 
-
         [PropertyClassification(new[] { "Docusign Credentials" }, 1)]
         [DataMember]
         public string AccountId
