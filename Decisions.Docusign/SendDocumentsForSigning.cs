@@ -39,6 +39,8 @@ namespace Decisions.Docusign
         private const string INPUT_RESPECT_SIGNING_ORDER = "RespectSigningOrder";
         private const string INPUT_REMINDERS = "Reminders";
 
+        private const string INPUT_TRANSFORM_FIELDS = "TransformPdfFields";
+        
         #endregion
         
         #region ISyncStep Members
@@ -65,6 +67,7 @@ namespace Decisions.Docusign
                     new DataDescription(typeof(string), INPUT_CC, true),
                     new DataDescription(typeof (string), INPUT_SUBJECT),
                     new DataDescription(typeof (string), INPUT_EMAILBLURB),
+                    new DataDescription(typeof(bool), INPUT_TRANSFORM_FIELDS),
                     new DataDescription(typeof (DocusignCredentials), INPUT_CREDS),
                     new DataDescription(typeof(bool), INPUT_RESPECT_SIGNING_ORDER),
                     new DataDescription(typeof(Notification), INPUT_REMINDERS),
@@ -107,6 +110,7 @@ namespace Decisions.Docusign
             var cc = (string[])data.Data[INPUT_CC];
             var subject = (string)data.Data[INPUT_SUBJECT];
             var emailBlurb = (string)data.Data[INPUT_EMAILBLURB];
+            var transformFields = (bool) data.Data[INPUT_TRANSFORM_FIELDS];
             var reminders = (Notification)data.Data[INPUT_REMINDERS];
             
             // Output
@@ -131,13 +135,15 @@ namespace Decisions.Docusign
                         {
                             PDFBytes = doc.Contents,
                             ID = documentIndex.ToString(),
-                            Name = doc.FileName
+                            Name = doc.FileName,
+                            TransformPdfFields = transformFields,
                         });
                         documentIndex++;
                     }
 
                     // Add each Recipient with their Tabs.
                     var recipientIndex = 1;
+                    bool defaultRecipientSpecified = recipientsList.Any(m => m.DefaultRecipient);
                     foreach (var rtm in recipientsList)
                     {
                         int routingOrder = rtm.RoutingOrder + 1;// Increment by 1 so order is able to use 0
@@ -149,7 +155,9 @@ namespace Decisions.Docusign
                             RoutingOrder = (ushort)routingOrder, 
                             /* RoutingOrder must be positive. And RoutingOrderSpecified cannot be null*/
                             RoutingOrderSpecified = routingOrder > 0 && (data["RespectSigningOrder"] as bool? ?? false),
-                            ID = recipientIndex.ToString()
+                            ID = recipientIndex.ToString(),
+                            DefaultRecipient = transformFields && rtm.DefaultRecipient,
+                            DefaultRecipientSpecified = transformFields && defaultRecipientSpecified,
                         });
 
                         // Absolutely Positioned Tabs
