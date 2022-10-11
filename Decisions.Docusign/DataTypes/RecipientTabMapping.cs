@@ -17,6 +17,9 @@ namespace Decisions.Docusign.DataTypes
         
         [DataMember]
         public int RoutingOrder { get; set; }
+        
+        [DataMember]
+        public bool DefaultRecipient { get; set; }
 
         [DataMember]
         public SimpleTab[] AbsolutePositionTabs { get; set; }       
