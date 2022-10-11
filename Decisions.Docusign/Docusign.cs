@@ -61,7 +61,7 @@ namespace Decisions.Docusign
             }
         }
         
-        	/// <summary>
+        /// <summary>
         /// Returns all the documents within an envelope. With the exception of the summary.pdf file
         /// </summary>
         /// <param name="envelopeId"></param>
@@ -69,8 +69,8 @@ namespace Decisions.Docusign
         /// <returns></returns>
         public static FileData[] GetSignedDocuments(string envelopeId, [IgnoreMappingDefault] DocusignCredentials overrideCredentials=null)
         {
-            IDocusignCreds creds = overrideCredentials as IDocusignCreds ?? DSServiceClientFactory.DsSettings;
-            DSAPIServiceSoapClient dsClient = DSServiceClientFactory.GetDsClient(creds);
+            IDocusignCreds credentials = overrideCredentials as IDocusignCreds ?? DSServiceClientFactory.DsSettings;
+            DSAPIServiceSoapClient dsClient = DSServiceClientFactory.GetDsClient(credentials);
 			// Null check. No good documentation regarding DSAPIServiceSoapClient
             if (dsClient == null)
                 return null;
@@ -78,21 +78,21 @@ namespace Decisions.Docusign
             using (var scope = new System.ServiceModel.OperationContextScope(dsClient.InnerChannel))
             {
                 OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
-                    DSServiceClientFactory.GetAuthHeaderRequestProperty(creds);
+                    DSServiceClientFactory.GetAuthHeaderRequestProperty(credentials);
 
                 DocumentPDFs documentPDFS = dsClient.RequestDocumentPDFsEx(envelopeId);
 
-                if (documentPDFS == null || documentPDFS.DocumentPDF == null || documentPDFS.DocumentPDF.Length == 0 )
+                if (documentPDFS?.DocumentPDF == null || documentPDFS.DocumentPDF.Length == 0 )
                 {
                     return null;
                 }
                 
                 List<FileData> ret = new List<FileData>(); 
-                for(int i=0; i<documentPDFS.DocumentPDF.Length; i++)
+                foreach (var t in documentPDFS.DocumentPDF)
                 {
-					// Only add to return array if document is not a summary. 
-                    if (!(documentPDFS.DocumentPDF[i].DocumentType == DocumentType.SUMMARY))
-                        ret.Add(new FileData(documentPDFS.DocumentPDF[i].Name, documentPDFS.DocumentPDF[i].PDFBytes));
+                    // Only add to return array if document is not a summary. 
+                    if (t.DocumentType != DocumentType.SUMMARY)
+                        ret.Add(new FileData(t.Name, t.PDFBytes));
                 }
 
                 return ret.ToArray();
@@ -111,7 +111,7 @@ namespace Decisions.Docusign
 
                 var documentsPDFs = dsClient.RequestCertificate(envelopeId);
 
-                if (documentsPDFs == null || documentsPDFs.DocumentPDF == null || documentsPDFs.DocumentPDF.Length == 0)
+                if (documentsPDFs?.DocumentPDF == null || documentsPDFs.DocumentPDF.Length == 0)
                 {
                     return null;
                 }

@@ -14,6 +14,7 @@ namespace Decisions.Docusign
 {
     [Obsolete]
     [Writable]
+    #region Obsolete Step Class. For customer upgrade compatibility, do not remove.
     public sealed class SendDocumentForSigning : ISyncStep, IDataConsumer, IDataProducer, IDefaultInputMappingStep
     {
         private const string OUTCOME_SENT = "Sent";
@@ -197,4 +198,5 @@ namespace Decisions.Docusign
 
         #endregion
     }
+    #endregion
 }
