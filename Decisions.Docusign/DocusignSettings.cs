@@ -30,43 +30,37 @@ namespace Decisions.Docusign
         private string integratorKey;
 
         [ORMField]
-        private bool useDemoEnvironment;        
-       
+        private bool useDemoEnvironment;
+
+        private const string CREDENTIALS_CATEGORY = "Docusign Credentials";
+        
         public DocusignSettings()
         {
             this.EntityName = "Docusign Settings";
         }
-        
-        [PropertyClassification(0, "Base Url (Production)", "Docusign Credentials")]        
-        [PropertyHiddenByValue(nameof(UseDemoEnvironment), true, true)]
-        public string BaseUrl
-        {
-            get { return baseUrl; }
-            set { baseUrl = value; }
-        }
-        
-        [PropertyClassification(new [] {"Docusign Credentials"}, 1)]
+
+        [PropertyClassification(0,  "User ID", CREDENTIALS_CATEGORY)]
         public string UserName
         {
             get { return userName; }
             set { userName = value; }
         }
 
-        [PropertyClassification(new[] { "Docusign Credentials" }, 1)]
+        [PropertyClassification(10, "Login Email", CREDENTIALS_CATEGORY)]
         public string LoginEmail
         {
             get { return loginEmail; }
             set { loginEmail = value; }
         }
 
-        [PropertyClassification(new[] { "Docusign Credentials" }, 1)]
+        [PropertyClassification(20, "API Account ID", CREDENTIALS_CATEGORY)]
         public string AccountId
         {
             get { return accountId; }
             set { accountId = value; }
         }
 
-        [PropertyClassification(new[] { "Docusign Credentials" }, 2)]
+        [PropertyClassification(30, "App Password", CREDENTIALS_CATEGORY)]
         [PasswordText]
         public string Password
         {
@@ -74,7 +68,7 @@ namespace Decisions.Docusign
             set { password = value; }
         }
 
-        [PropertyClassification(new[] { "Docusign Credentials" }, 2)]
+        [PropertyClassification(40, "Integrator Key", CREDENTIALS_CATEGORY)]
         [PasswordText]
         public string IntegratorKey
         {
@@ -82,11 +76,19 @@ namespace Decisions.Docusign
             set { integratorKey = value; }
         }
 
-        [PropertyClassification(new[] { "Docusign Credentials" }, 3)]
+        [PropertyClassification(50, "Use Demo Environment", CREDENTIALS_CATEGORY)]
         public bool UseDemoEnvironment
         {
             get { return useDemoEnvironment; }
             set { useDemoEnvironment = value; }
+        }
+                
+        [PropertyClassification(60, "Base Url (Production Only)", CREDENTIALS_CATEGORY)]        
+        [PropertyHiddenByValue(nameof(UseDemoEnvironment), true, true)]
+        public string BaseUrl
+        {
+            get { return baseUrl; }
+            set { baseUrl = value; }
         }
 
         public override BaseActionType[] GetActions(AbstractUserContext userContext, EntityActionType[] types)
@@ -98,16 +100,6 @@ namespace Decisions.Docusign
         {
             // Create default settings object
             ModuleSettingsAccessor<DocusignSettings>.GetSettings();
-        }
-
-        public void SetDocusignSettings(DocusignSettings settings)
-        {
-            settings.Store();
-        }
-        
-        public DocusignSettings GetDocusignSettings()
-        {
-            return DSServiceClientFactory.DsSettings;
         }
     }
 }
