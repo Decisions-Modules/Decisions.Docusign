@@ -13,7 +13,7 @@
     <ObjectsToImport/>
     <MsSqlScript/>
   </Resources>
-  <Version>8.9.0</Version>
+  <Version>8.10.0</Version>
   <ImagePath>./image.png</ImagePath>
   <Description>This module has Flow Steps that will let you send a document to Docusign so that Docusign can capture electronic signatures and initials.  The steps are limited to using X,Y position in the document to mark where to sign, or using Docusign's "Tag" ability to indicate areas in the document that require signatures.  In Decisions it is a common pattern to send the document out, through Docusign, for signatures and then use the "Wait on External Event" step to monitor Docusign, watching for the document to be fully executed before pulling it back into the workflow.  An example of this workflow is available on our documentation site.</Description>
 </CreateModuleInfo>
