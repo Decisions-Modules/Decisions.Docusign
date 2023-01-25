@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.ServiceModel.Channels;
 using System.ServiceModel;
@@ -135,8 +136,9 @@ namespace Decisions.Docusign
                         {
                             PDFBytes = doc.Contents,
                             ID = documentIndex.ToString(),
+                            FileExtension = doc.FileType,
                             Name = doc.FileName,
-                            TransformPdfFields = transformFields,
+                            TransformPdfFields = transformFields
                         });
                         documentIndex++;
                     }
