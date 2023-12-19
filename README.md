@@ -1,2 +1,2 @@
 # decisions.docusign
-Docusign Module from Decisions Closed Source Releases.
+Decisions Documentation: https://documentation.decisions.com/docs/docusign-module
