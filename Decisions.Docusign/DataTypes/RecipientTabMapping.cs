@@ -26,6 +26,9 @@ namespace Decisions.Docusign.DataTypes
 
         [DataMember]
         public SimpleAnchorTab[] AnchorStringTabs { get; set; }
+        
+        [DataMember]
+        public string[] CCRecipients { get; set; }
 
         public override string ToString()
         {
