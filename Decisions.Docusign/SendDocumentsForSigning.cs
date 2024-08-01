@@ -210,6 +210,8 @@ namespace Decisions.Docusign
                                 UserName = ccEmail,
                                 Type = RecipientTypeCode.CarbonCopy,
                                 ID = recipientIndex.ToString(),
+                                RoutingOrder = 1,
+                                RoutingOrderSpecified = true
                             });
                             recipientIndex++;
                         }
