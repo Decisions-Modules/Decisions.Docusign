@@ -178,7 +178,7 @@ namespace Decisions.Docusign
                                     DocumentID = GetIdentifierOrDefaultOneAsString(apt.DocumentId),
                                 });
                             }
-                        };
+                        }
                         // AnchorStringTabs
                         // Docusign will search the document for these string values and attach a Tab at that location.
                         if (rtm.AnchorStringTabs != null)
@@ -195,9 +195,27 @@ namespace Decisions.Docusign
                                     DocumentID = GetIdentifierOrDefaultOneAsString(ast.DocumentId),
                                 });
                             }
-                        };
+                        }
+                        
+                        // Add CC Recipients for current signer
+                        if (rtm.CCRecipients != null)
+                        {
+                            foreach (var ccRecipient in rtm.CCRecipients)
+                            {
+                                dsRecipients.Add(new Recipient
+                                {
+                                    Email = ccRecipient,
+                                    UserName = ccRecipient,
+                                    Type = RecipientTypeCode.CarbonCopy,
+                                    ID = (++recipientIndex).ToString(),
+                                    RoutingOrder = (ushort)routingOrder,
+                                    RoutingOrderSpecified = true
+                                });
+                            }
+                        }
+                        
                         recipientIndex++;
-                    };
+                    }
                     
                     // Add CC recipients
                     if (cc != null)
