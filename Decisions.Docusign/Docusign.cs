@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DecisionsFramework.Data.DataTypes;
 using DecisionsFramework.Design.Flow;
 using System.ServiceModel;
@@ -26,6 +27,45 @@ namespace Decisions.Docusign
                 OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] = DSServiceClientFactory.GetAuthHeaderRequestProperty(creds);
                 
                 return dsClient.RequestStatus(envelopeId).Status.ToString();
+            }
+        }
+        
+        public static EnvelopeStatusChange[] GetDocumentStatusChanges(
+            DateTime statusChangedSince,
+            [IgnoreMappingDefault] string forUserName = null,
+            [IgnoreMappingDefault] string forEmail = null,
+            [IgnoreMappingDefault] EnvelopeStatusCode[] statusesToReturn = null,
+            [IgnoreMappingDefault] DocusignCredentials overrideCredentials = null)
+        {
+            IDocusignCreds creds = overrideCredentials as IDocusignCreds ?? DSServiceClientFactory.DsSettings;
+
+            var dsClient = DSServiceClientFactory.GetDsClient(creds);
+
+            using (var scope = new OperationContextScope(dsClient.InnerChannel))
+            {                
+                OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] = DSServiceClientFactory.GetAuthHeaderRequestProperty(creds);
+
+                if (statusesToReturn != null && statusesToReturn.Contains(EnvelopeStatusCode.Any))
+                {
+                    // The 'Any' value isn't accepted by this endpoint, so if someone requests 'Any' status, simply remove this filter:
+                    statusesToReturn = null;
+                }
+
+                UserInfo userInfo = null;
+                if (!string.IsNullOrEmpty(forUserName) || !string.IsNullOrEmpty(forEmail))
+                {
+                    userInfo = new UserInfo { UserName = forUserName, Email = forEmail };
+                }
+                
+                var filter = new EnvelopeStatusChangeFilter
+                {
+                    AccountId = creds?.AccountId,
+                    StatusChangedSince = statusChangedSince,
+                    Statuses = statusesToReturn,
+                    UserInfo = userInfo,
+                };
+
+                return dsClient.RequestStatusChanges(filter).EnvelopeStatusChanges;
             }
         }
         
