@@ -160,6 +160,7 @@ namespace Decisions.Docusign
                             ID = recipientIndex.ToString(),
                             DefaultRecipient = transformFields && rtm.DefaultRecipient,
                             DefaultRecipientSpecified = transformFields && defaultRecipientSpecified,
+                            AccessCode = rtm.AccessCode
                         });
 
                         // Absolutely Positioned Tabs
@@ -188,11 +189,57 @@ namespace Decisions.Docusign
                                 tabs.Add(new Tab
                                 {
                                     PageNumber = GetIdentifierOrDefaultOneAsString(ast.PageNumber),
-                                    AnchorTabItem = new AnchorTab { AnchorTabString = ast.AnchorTabString, XOffset = ast.XOffset, YOffset = ast.YOffset },
+                                    AnchorTabItem = new AnchorTab
+                                    {
+                                        AnchorTabString = ast.AnchorTabString,
+                                        XOffset = ast.XOffset,
+                                        YOffset = ast.YOffset,
+                                        IgnoreIfNotPresent = ast.IgnoreIfNotPresent ?? false,
+                                        IgnoreIfNotPresentSpecified = ast.IgnoreIfNotPresent.HasValue,
+                                        Unit = ast.Unit ?? UnitTypeCode.Pixels,
+                                        UnitSpecified = ast.Unit.HasValue
+                                    },
                                     Type = ast.TabType,
-                                    Name = recipientIndex.ToString(),
+                                    Name = !string.IsNullOrEmpty(ast.Name) ? ast.Name : recipientIndex.ToString(),
                                     RecipientID = recipientIndex.ToString(),
                                     DocumentID = GetIdentifierOrDefaultOneAsString(ast.DocumentId),
+                                    CustomTabRequired = ast.Required ?? false,
+                                    CustomTabRequiredSpecified = ast.Required.HasValue,
+                                    CustomTabHeight = ast.Height ?? 0,
+                                    CustomTabHeightSpecified = ast.Height.HasValue,
+                                    CustomTabWidth = ast.Width ?? 0,
+                                    CustomTabWidthSpecified = ast.Width.HasValue,
+                                    TabLabel = ast.TabLabel,
+                                    Bold = ast.Bold ?? false,
+                                    BoldSpecified = ast.Bold.HasValue,
+                                    Italic = ast.Italic ?? false,
+                                    ItalicSpecified = ast.Italic.HasValue,
+                                    Underline = ast.Underline ?? false,
+                                    UnderlineSpecified = ast.Underline.HasValue,
+                                    ConditionalParentLabel = ast.ConditionalParentLabel,
+                                    ConditionalParentValue = ast.ConditionalParentValue,
+                                    CustomTabType = ast.CustomTabType ?? CustomTabType.Text,
+                                    CustomTabTypeSpecified = ast.CustomTabType.HasValue,
+                                    CustomTabDisableAutoSize = ast.DisableAutoSize ?? false,
+                                    CustomTabDisableAutoSizeSpecified = ast.DisableAutoSize.HasValue,
+                                    CustomTabLocked = ast.Locked ?? false,
+                                    CustomTabLockedSpecified = ast.Locked.HasValue,
+                                    ConcealValueOnDocument = ast.ConcealValueOnDocument ?? false,
+                                    ConcealValueOnDocumentSpecified = ast.ConcealValueOnDocument.HasValue,
+                                    Value = ast.Value,
+                                    CustomTabListSelectedValue = ast.ListSelectedValue,
+                                    XPosition = ast.XPosition,
+                                    YPosition = ast.YPosition,
+                                    RequireAll = ast.RequireAll ?? false,
+                                    RequireAllSpecified = ast.RequireAll.HasValue,
+                                    CustomTabRadioGroupName = ast.RadioGroupName,
+                                    CustomTabValidationMessage = ast.ValidationMessage,
+                                    Font = ast.Font ?? Font.Arial,
+                                    FontSpecified = ast.Font.HasValue,
+                                    FontSize = ast.FontSize ?? FontSize.Size7,
+                                    FontSizeSpecified = ast.FontSize.HasValue,
+                                    FontColor = ast.FontColor ?? FontColor.Black,
+                                    FontColorSpecified = ast.FontColor.HasValue,
                                 });
                             }
                         }
