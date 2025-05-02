@@ -30,6 +30,9 @@ namespace Decisions.Docusign.DataTypes
         [DataMember]
         public string[] CCRecipients { get; set; }
 
+        [DataMember]
+        public string AccessCode { get; set; }
+
         public override string ToString()
         {
             return EmailAddress;
