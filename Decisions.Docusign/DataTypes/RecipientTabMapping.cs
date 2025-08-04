@@ -33,6 +33,12 @@ namespace Decisions.Docusign.DataTypes
         [DataMember]
         public string AccessCode { get; set; }
 
+        [DataMember]
+        public string IDCheckConfigurationName { get; set; }
+        
+        [DataMember]
+        public SimpleRecipientSignatureProvider[] RecipientSignatureProviders { get; set; }
+        
         public override string ToString()
         {
             return EmailAddress;

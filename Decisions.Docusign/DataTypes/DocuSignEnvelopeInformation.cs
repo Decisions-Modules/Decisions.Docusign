@@ -1,4 +1,4 @@
-﻿using Decisions.Docusign.DSServiceReference;
+﻿using Decisions.Docusign.DSServiceReferenceV2;
 
 namespace Decisions.Docusign.DataTypes
 {

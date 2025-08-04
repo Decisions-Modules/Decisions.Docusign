@@ -1,4 +1,4 @@
-﻿using Decisions.Docusign.DSServiceReference;
+﻿using Decisions.Docusign.DSServiceReferenceV2;
 using System.Runtime.Serialization;
 
 namespace Decisions.Docusign.DataTypes

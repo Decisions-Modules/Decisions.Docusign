@@ -1,0 +1,16 @@
+{
+  "providerId": "Microsoft.Tools.ServiceModel.Svcutil",
+  "version": "8.0.0",
+  "options": {
+    "inputs": [
+      "https://demo.docusign.net/api/3.0/api.asmx?WSDL"
+    ],
+    "namespaceMappings": [
+      "*, Decisions.Docusign.DSServiceReferenceV2"
+    ],
+    "outputFile": "Reference.cs",
+    "syncOnly": true,
+    "targetFramework": "net9.0",
+    "typeReuseMode": "All"
+  }
+}

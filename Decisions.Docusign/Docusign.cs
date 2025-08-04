@@ -8,7 +8,7 @@ using System.ServiceModel.Channels;
 using DecisionsFramework.Design.Flow.StepImplementations;
 using System.Xml.Serialization;
 using System.IO;
-using Decisions.Docusign.DSServiceReference;
+using Decisions.Docusign.DSServiceReferenceV2;
 
 namespace Decisions.Docusign
 {
@@ -83,7 +83,7 @@ namespace Decisions.Docusign
         {
             IDocusignCreds creds = overrideCredentials as IDocusignCreds ?? DSServiceClientFactory.DsSettings;
 
-            DSAPIServiceSoapClient dsClient = DSServiceClientFactory.GetDsClient(creds);
+            APIServiceSoapClient dsClient = DSServiceClientFactory.GetDsClient(creds);
             
             using (OperationContextScope scope = new OperationContextScope(dsClient.InnerChannel))
             {
@@ -127,7 +127,7 @@ namespace Decisions.Docusign
         public static FileData[] GetSignedDocuments(string envelopeId, [IgnoreMappingDefault] DocusignCredentials overrideCredentials=null)
         {
             IDocusignCreds creds = overrideCredentials as IDocusignCreds ?? DSServiceClientFactory.DsSettings;
-            DSAPIServiceSoapClient dsClient = DSServiceClientFactory.GetDsClient(creds);
+            APIServiceSoapClient dsClient = DSServiceClientFactory.GetDsClient(creds);
 			
             // Null check. No good documentation regarding DSAPIServiceSoapClient
             if (dsClient == null)
@@ -161,7 +161,7 @@ namespace Decisions.Docusign
         {
             IDocusignCreds creds = overrideCredentials as IDocusignCreds ?? DSServiceClientFactory.DsSettings;
 
-            DSAPIServiceSoapClient dsClient = DSServiceClientFactory.GetDsClient(creds);
+            APIServiceSoapClient dsClient = DSServiceClientFactory.GetDsClient(creds);
 
             using (OperationContextScope scope = new OperationContextScope(dsClient.InnerChannel))
             {

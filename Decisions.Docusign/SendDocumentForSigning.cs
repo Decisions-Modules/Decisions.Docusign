@@ -6,7 +6,7 @@ using System.ServiceModel;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Flow.Mapping;
-using Decisions.Docusign.DSServiceReference;
+using Decisions.Docusign.DSServiceReferenceV2;
 using Decisions.Docusign.DataTypes;
 using DecisionsFramework.Design.Flow.Mapping.InputImpl;
 

@@ -7,7 +7,7 @@ using System.ServiceModel;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Flow.Mapping;
-using Decisions.Docusign.DSServiceReference;
+using Decisions.Docusign.DSServiceReferenceV2;
 using Decisions.Docusign.DataTypes;
 using DecisionsFramework.Data.DataTypes;
 using DecisionsFramework.Design.Flow.Mapping.InputImpl;
@@ -113,6 +113,7 @@ namespace Decisions.Docusign
             var emailBlurb = (string)data.Data[INPUT_EMAILBLURB];
             var transformFields = (bool) data.Data[INPUT_TRANSFORM_FIELDS];
             var reminders = (Notification)data.Data[INPUT_REMINDERS];
+            var respectSigningOrder = data["RespectSigningOrder"] as bool? ?? false;
             
             // Output
             Dictionary<string, object> resultData = new Dictionary<string, object>();
@@ -149,19 +150,7 @@ namespace Decisions.Docusign
                     foreach (var rtm in recipientsList)
                     {
                         int routingOrder = rtm.RoutingOrder + 1;// Increment by 1 so order is able to use 0
-                        dsRecipients.Add(new Recipient
-                        {
-                            Email = rtm.EmailAddress,
-                            UserName = rtm.RecipientName,
-                            Type = RecipientTypeCode.Signer,
-                            RoutingOrder = (ushort)routingOrder, 
-                            /* RoutingOrder must be positive. And RoutingOrderSpecified cannot be null*/
-                            RoutingOrderSpecified = routingOrder > 0 && (data["RespectSigningOrder"] as bool? ?? false),
-                            ID = recipientIndex.ToString(),
-                            DefaultRecipient = transformFields && rtm.DefaultRecipient,
-                            DefaultRecipientSpecified = transformFields && defaultRecipientSpecified,
-                            AccessCode = rtm.AccessCode
-                        });
+                        dsRecipients.Add(CreateRecipientFromRtm(rtm, routingOrder, defaultRecipientSpecified, transformFields, recipientIndex, respectSigningOrder));
 
                         // Absolutely Positioned Tabs
                         if (rtm.AbsolutePositionTabs != null)
@@ -313,6 +302,44 @@ namespace Decisions.Docusign
         private string GetIdentifierOrDefaultOneAsString(int id)
         {
             return (id > 0 ? id : 1).ToString();
+        }
+        
+        private Recipient CreateRecipientFromRtm(RecipientTabMapping rtm, int routingOrder, bool defaultRecipientSpecified, bool transformFields, int recipientIndex, bool respectSigningOrder)
+        {
+            Recipient recipient = new Recipient
+            {
+                Email = rtm.EmailAddress,
+                UserName = rtm.RecipientName,
+                Type = RecipientTypeCode.Signer,
+                RoutingOrder = (ushort)routingOrder, 
+                /* RoutingOrder must be positive. And RoutingOrderSpecified cannot be null*/
+                RoutingOrderSpecified = routingOrder > 0 && respectSigningOrder,
+                ID = recipientIndex.ToString(),
+                DefaultRecipient = transformFields && rtm.DefaultRecipient,
+                DefaultRecipientSpecified = transformFields && defaultRecipientSpecified,
+                AccessCode = rtm.AccessCode,
+                IDCheckConfigurationName = rtm.IDCheckConfigurationName
+            };
+
+            List<RecipientSignatureProvider> rsps = new List<RecipientSignatureProvider>();
+            foreach (SimpleRecipientSignatureProvider rsp in rtm.RecipientSignatureProviders)
+            {
+                rsps.Add(new RecipientSignatureProvider()
+                {
+                    SignatureProviderName = rsp.SignatureProviderName,
+                    SignatureProviderOptions = new SignatureProviderOptions()
+                    {
+                        CPFNumber = rsp.CPFNumber,
+                        OneTimePassword = rsp.OneTimePassword,
+                        SignerRole = rsp.SignerRole,
+                        Sms = rsp.Sms
+                    }
+                });
+            }
+
+            recipient.RecipientSignatureProviders = rsps.ToArray();
+            
+            return recipient;
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using DecisionsFramework.ServiceLayer;
-using Decisions.Docusign.DSServiceReference;
+using Decisions.Docusign.DSServiceReferenceV2;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 
@@ -28,8 +28,8 @@ namespace Decisions.Docusign
             return httpRequestProperty;
         }
 
-        public static DSAPIServiceSoapClient GetDsClient(IDocusignCreds credentials) => 
-            new DSAPIServiceSoapClient(new BasicHttpBinding(BasicHttpSecurityMode.Transport) 
+        public static APIServiceSoapClient GetDsClient(IDocusignCreds credentials) => 
+            new APIServiceSoapClient(new BasicHttpBinding(BasicHttpSecurityMode.Transport) 
             { MaxReceivedMessageSize = 167772160 }, new EndpointAddress(GetEndpoint(credentials)));
 
         private static string GetEndpoint(IDocusignCreds creds)
