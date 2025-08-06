@@ -321,6 +321,9 @@ namespace Decisions.Docusign
                 IDCheckConfigurationName = rtm.IDCheckConfigurationName
             };
 
+            if (rtm.RecipientSignatureProviders == null)
+                return recipient;
+
             List<RecipientSignatureProvider> rsps = new List<RecipientSignatureProvider>();
             foreach (SimpleRecipientSignatureProvider rsp in rtm.RecipientSignatureProviders)
             {
