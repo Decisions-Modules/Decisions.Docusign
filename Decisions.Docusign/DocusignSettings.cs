@@ -91,6 +91,11 @@ namespace Decisions.Docusign
             set { baseUrl = value; }
         }
 
+        public override BaseActionType[] GetActions(AbstractUserContext userContext, EntityActionType[] types)
+        {
+            return new BaseActionType[] { new EditEntityAction(typeof(DocusignSettings), "Edit", "") { IsDefaultGridAction = true } };
+        }
+
         public void Initialize()
         {
             // Create default settings object
